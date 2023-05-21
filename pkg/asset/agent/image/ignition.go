@@ -60,6 +60,7 @@ type agentTemplateData struct {
 	ClusterName               string
 	OSImage                   models.OsImage
 	Proxy                     *v1beta1.Proxy
+	ConfigImageFiles          string
 }
 
 // Name returns the human-friendly name of the asset.
@@ -81,6 +82,24 @@ func (a *Ignition) Dependencies() []asset.Asset {
 		&mirror.RegistriesConf{},
 		&mirror.CaBundle{},
 		&IgnitionBase{},
+	}
+}
+
+// GetConfigImageFiles returns the list of files or file paths to be included in the config-image.
+func GetConfigImageFiles() []string {
+	return []string{
+		"/etc/assisted/manifests/pull-secret.yaml", //nolint:gosec // not hardcoded credentials
+		"/etc/assisted/manifests/nmstateconfig.yaml",
+		"/etc/assisted/manifests/cluster-deployment.yaml",
+		"/etc/assisted/manifests/cluster-image-set.yaml",
+		"/etc/assisted/manifests/agent-cluster-install.yaml",
+		"/etc/assisted/extra-manifests",
+		"/etc/assisted/hostconfig",
+		"/etc/assisted/hostnames",
+		"/opt/agent/tls/kubeadmin-password.hash", //nolint:gosec // not hardcoded credentials
+		"/opt/agent/tls/admin-kubeconfig-signer",
+		"/opt/agent/tls/kube-apiserver",
+		"/etc/assisted/rendezvous-host.env", // This file must be last in the list
 	}
 }
 
@@ -124,6 +143,8 @@ func (a *Ignition) Generate(dependencies asset.Parents) error {
 		agentManifests.ClusterDeployment.Spec.ClusterName,
 		agentManifests.ClusterDeployment.Spec.BaseDomain)
 
+	configImageFiles := strings.Join(GetConfigImageFiles(), ",")
+
 	agentTemplateData := getTemplateData(
 		clusterName,
 		agentManifests.GetPullSecretData(),
@@ -135,7 +156,8 @@ func (a *Ignition) Generate(dependencies asset.Parents) error {
 		agentManifests.AgentClusterInstall,
 		ignitionBaseAsset.infraEnvID,
 		ignitionBaseAsset.osImage,
-		infraEnv.Spec.Proxy)
+		infraEnv.Spec.Proxy,
+		configImageFiles)
 
 	err = bootstrap.AddStorageFiles(&config, "/", "agent/files", agentTemplateData)
 	if err != nil {
@@ -187,7 +209,7 @@ func getTemplateData(name, pullSecret, releaseImageList, releaseImage,
 	agentClusterInstall *hiveext.AgentClusterInstall,
 	infraEnvID string,
 	osImage models.OsImage,
-	proxy *v1beta1.Proxy) *agentTemplateData {
+	proxy *v1beta1.Proxy, configImageFiles string) *agentTemplateData {
 	return &agentTemplateData{
 		ServiceProtocol:           "http",
 		PullSecret:                pullSecret,
@@ -203,6 +225,7 @@ func getTemplateData(name, pullSecret, releaseImageList, releaseImage,
 		ClusterName:               name,
 		OSImage:                   osImage,
 		Proxy:                     proxy,
+		ConfigImageFiles:          configImageFiles,
 	}
 }
 

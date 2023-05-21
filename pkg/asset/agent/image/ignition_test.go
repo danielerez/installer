@@ -86,7 +86,9 @@ func TestIgnition_getTemplateData(t *testing.T) {
 	}
 	clusterName := "test-agent-cluster-install.test"
 
-	templateData := getTemplateData(clusterName, pullSecret, releaseImageList, releaseImage, releaseImageMirror, haveMirrorConfig, publicContainerRegistries, agentClusterInstall, infraEnvID, osImage, proxy)
+	configImageFiles := "/etc/some/file,/etcanother/file"
+
+	templateData := getTemplateData(clusterName, pullSecret, releaseImageList, releaseImage, releaseImageMirror, haveMirrorConfig, publicContainerRegistries, agentClusterInstall, infraEnvID, osImage, proxy, configImageFiles)
 	assert.Equal(t, clusterName, templateData.ClusterName)
 	assert.Equal(t, "http", templateData.ServiceProtocol)
 	assert.Equal(t, pullSecret, templateData.PullSecret)
@@ -101,6 +103,7 @@ func TestIgnition_getTemplateData(t *testing.T) {
 	assert.Equal(t, infraEnvID, templateData.InfraEnvID)
 	assert.Equal(t, osImage, templateData.OSImage)
 	assert.Equal(t, proxy, templateData.Proxy)
+	assert.Equal(t, configImageFiles, templateData.ConfigImageFiles)
 }
 
 func TestIgnition_getRendezvousHostEnv(t *testing.T) {
@@ -321,6 +324,8 @@ func generatedFiles(otherFiles ...string) []string {
 		"/etc/assisted/network/host0/eth0.nmconnection",
 		"/etc/assisted/network/host0/mac_interface.ini",
 		"/usr/local/bin/pre-network-manager-config.sh",
+		"/usr/local/bin/load-config-iso.sh",
+		"/etc/udev/rules.d/80-agent-config-image.rules",
 		"/opt/agent/tls/kubeadmin-password.hash")
 	return append(files, otherFiles...)
 }
