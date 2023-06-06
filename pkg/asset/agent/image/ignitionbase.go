@@ -53,6 +53,7 @@ var agentEnabledServices = []string{
 	"multipathd.service",
 	"selinux.service",
 	"install-status.service",
+	"load-config-iso@.service",
 	// Services disabled in IgnitionBase
 	// "set-hostname.service",
 	// "start-cluster-installation.service",
