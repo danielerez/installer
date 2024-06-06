@@ -113,9 +113,9 @@ func (i *InfraEnv) generateManifest(clusterName, clusterNamespace, sshKey, addit
 	if architecture != "" {
 		infraEnv.Spec.CpuArchitecture = arch.RpmArch(architecture)
 	}
-	if additionalTrustBundle != "" {
-		infraEnv.Spec.AdditionalTrustBundle = additionalTrustBundle
-	}
+	// if additionalTrustBundle != "" {
+	// 	infraEnv.Spec.AdditionalTrustBundle = additionalTrustBundle
+	// }
 	if proxy != nil {
 		infraEnv.Spec.Proxy = getProxy(proxy)
 	}

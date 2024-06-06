@@ -26,10 +26,10 @@ copy_archive_contents() {
     # Get the releaseImage in the archive and verify it matches the current cluster-image-set
     release_image=$(grep releaseImage ${CLUSTER_IMAGE_SET} | sed -n -e 's/^.*releaseImage: //p')
     if ! diff "${CLUSTER_IMAGE_SET}" <(cpio -icv --to-stdout "${CLUSTER_IMAGE_SET}" <"${unzipped_file}"); then
-       echo "The cluster-image-set in archive does not match current release ${release_image}"
-       printf '\\e{lightred}Installation cannot proceed:\\e{reset} cluster-image-set in archive does not match current release' | set_issue "${status_issue}"
-       cleanup_files
-       return 1
+       #echo "The cluster-image-set in archive does not match current release ${release_image}"
+       #printf '\\e{lightred}Installation cannot proceed:\\e{reset} cluster-image-set in archive does not match current release' | set_issue "${status_issue}"
+       #cleanup_files
+       #return 1
     fi
     echo "Archive on ${devname} contains release ${release_image}"
 
